@@ -12,8 +12,6 @@ router.post('/', async (req,res) => {
     }
 
     const contactRepo = AppDataSource.getRepository(Contact);
-
-    // Fetch all matching contacts
     const contacts = await contactRepo.find({
         where: [
             { email },
@@ -22,7 +20,6 @@ router.post('/', async (req,res) => {
     });
 
     if (contacts.length === 0) {
-        // Create a new primary contact
         const newContact = contactRepo.create({
             email,
             phoneNumber,
@@ -39,8 +36,6 @@ router.post('/', async (req,res) => {
             }
         });
     }
-    console.log(contacts);
-    // Determine the primary contact
     let primaryContact = contacts.filter(c => c.linkPrecedence === 'primary') ;
 
     if(primaryContact.length > 1){
@@ -54,23 +49,25 @@ router.post('/', async (req,res) => {
         await contactRepo.createQueryBuilder().update(Contact).set({ linkedId: oldPrimaryContact.id }).where("linkedId = :oldPrimaryId", { oldPrimaryId: newerPrimaryContact.id }).execute();
     
 
-    const allRelatedContacts = await contactRepo.find({
-        where: [{ linkedId: primaryContact[0].id }, {id: primaryContact[0].id}]
-    });
+        const allRelatedContacts = await contactRepo.find({
+            where: [{ linkedId: primaryContact[0].id }, {id: primaryContact[0].id}]
+        });
 
-    return res.json({
-        contact: {
-            primaryContactId: primaryContact[0].id,
-            emails: [...new Set(allRelatedContacts.map(c => c.email).filter(Boolean))],
-            phoneNumbers: [...new Set(allRelatedContacts.map(c => c.phoneNumber).filter(Boolean))],
-            secondaryContactIds: allRelatedContacts.filter(c => c.linkPrecedence === 'secondary').map(c => c.id)
-        }
-    })
+        return res.json({
+            contact: {
+                primaryContactId: primaryContact[0].id,
+                emails: [...new Set(allRelatedContacts.map(c => c.email).filter(Boolean))],
+                phoneNumbers: [...new Set(allRelatedContacts.map(c => c.phoneNumber).filter(Boolean))],
+                secondaryContactIds: allRelatedContacts.filter(c => c.linkPrecedence === 'secondary').map(c => c.id)
+            }
+        })
     }
-    // If a new contact, create a secondary linked contact
     const existingEmails = contacts.map(c => c.email).filter(e => e);
     const existingPhones = contacts.map(c => c.phoneNumber).filter(p => p);
     const primaryContacts = contacts.find(c => c.linkPrecedence === 'primary') || contacts[0];
+    const otherEmails = (await contactRepo.find({ where: { linkedId : primaryContacts.id }})).map(c => c.email).filter(e => e);
+    const otherPhones = (await contactRepo.find({ where: { linkedId : primaryContacts.id }})).map(c => c.phoneNumber).filter(p => p);
+    const secondaryContacts = ( await contactRepo.find({ where: { linkedId: primaryContacts.id }})).map(c => c.id);
 
     if ((email && !existingEmails.includes(email)) || (phoneNumber && !existingPhones.includes(phoneNumber))) {
         const newSecondaryContact = contactRepo.create({
@@ -86,9 +83,9 @@ router.post('/', async (req,res) => {
     return res.json({
         contact: {
             primaryContactId: primaryContacts.id,
-            emails: [...new Set(contacts.map(c => c.email).filter(e => e))],
-            phoneNumbers: [...new Set(contacts.map(c => c.phoneNumber).filter(p => p))],
-            secondaryContactIds: contacts.filter(c => c.linkPrecedence === 'secondary').map(c => c.id)
+            emails: [...new Set(contacts.map(c => c.email).filter(e => e).concat(otherEmails))],
+            phoneNumbers: [...new Set(contacts.map(c => c.phoneNumber).filter(p => p).concat(otherPhones))],
+            secondaryContactIds: contacts.filter(c => c.linkPrecedence === 'secondary').map(c => c.id).concat(secondaryContacts)
         }
     });
 });
