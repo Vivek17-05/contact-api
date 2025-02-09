@@ -1,5 +1,5 @@
 // src/entities/Contact.ts
-const { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } =  require('typeorm');
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm' ;
 
 @Entity()
 export class Contact {

@@ -11,42 +11,42 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Contact = void 0;
 // src/entities/Contact.ts
-const { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } = require('typeorm');
+const typeorm_1 = require("typeorm");
 let Contact = class Contact {
 };
 exports.Contact = Contact;
 __decorate([
-    PrimaryGeneratedColumn(),
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
 ], Contact.prototype, "id", void 0);
 __decorate([
-    Column({ nullable: true }),
+    (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Contact.prototype, "phoneNumber", void 0);
 __decorate([
-    Column({ nullable: true }),
+    (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Contact.prototype, "email", void 0);
 __decorate([
-    Column({ nullable: true }),
+    (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], Contact.prototype, "linkedId", void 0);
 __decorate([
-    Column({ type: 'enum', enum: ['primary', 'secondary'] }),
+    (0, typeorm_1.Column)({ type: 'enum', enum: ['primary', 'secondary'] }),
     __metadata("design:type", String)
 ], Contact.prototype, "linkPrecedence", void 0);
 __decorate([
-    CreateDateColumn(),
+    (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], Contact.prototype, "createdAt", void 0);
 __decorate([
-    UpdateDateColumn(),
+    (0, typeorm_1.UpdateDateColumn)(),
     __metadata("design:type", Date)
 ], Contact.prototype, "updatedAt", void 0);
 __decorate([
-    Column({ nullable: true }),
+    (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", Date)
 ], Contact.prototype, "deletedAt", void 0);
 exports.Contact = Contact = __decorate([
-    Entity()
+    (0, typeorm_1.Entity)()
 ], Contact);
